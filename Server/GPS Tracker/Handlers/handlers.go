@@ -57,3 +57,69 @@ func UserQueryMiddleware(c *fiber.Ctx) error {
 
 	return c.Next()
 }
+
+func PostFeed(c *fiber.Ctx) error {
+	session := c.Context().UserValue("session").(map[string]interface{})
+	jsn := model.ParseJson(c.Body())
+
+	lat, ok := jsn["lat"].(float64)
+	lon, ok2 := jsn["lat"].(float64)
+	timestamp, ok3 := jsn["timestamp"].(string) /*now.toISOString();*/
+
+	t, err := time.Parse(time.RFC3339, timestamp)
+
+	if !ok || !ok2 || !ok3 || err != nil {
+		return c.Send(model.ParseResponse(false, fiber.Map{"message": "invalid form"}))
+	}
+
+	err2 := database.FeedGPS(context.Background(), session["user.id"].(int64), lat, lon, t)
+
+	if err2 != nil {
+		return c.Send(model.ParseResponse(true, fiber.Map{"message": "failed :cc"}))
+	}
+
+	return c.Send(model.ParseResponse(true, fiber.Map{"message": "OK!"}))
+
+}
+
+func AuthCheckerMiddleware(c *fiber.Ctx) error {
+	session := c.Context().UserValue("session").(map[string]interface{})
+	if session["auth.token"] != nil {
+		return c.Next()
+	}
+
+	return c.Send(model.ParseResponse(false, fiber.Map{"message": "please login!"}))
+}
+
+func GetLocation(c *fiber.Ctx) error {
+	session := c.Context().UserValue("session").(map[string]interface{})
+	lat, lon, timestamp := database.GetLocation(context.Background(), session["user.id"].(int64))
+
+	if lat == 0 && lon == 0 {
+		return c.Send(model.ParseResponse(false, fiber.Map{"message": "failed :("}))
+	}
+
+	return c.Send(model.ParseResponse(true, fiber.Map{"lat": lat, "lon": lon, "timestamp": timestamp}))
+}
+
+func PostInfo(c *fiber.Ctx) error {
+	session := c.Context().UserValue("session").(map[string]interface{})
+	jsn := model.ParseJson(c.Body())
+
+	status, ok1 := jsn["status"].(string)
+	battery, ok2 := jsn["battery"].(byte)
+	isCharging, ok3 := jsn["isCharging"].(bool)
+	event, ok4 := jsn["event"].(byte)
+
+	if !ok1 || !ok2 || !ok3 || !ok4 {
+		return c.Send(model.ParseResponse(false, fiber.Map{"message": "invalid form"}))
+	}
+
+	err := database.ChangeInfo(context.Background(), session["user.id"].(int64), status, battery, isCharging, event)
+
+	if err != nil {
+		return c.Send(model.ParseResponse(true, fiber.Map{"message": "failed :(cc"}))
+	}
+	return c.Send(model.ParseResponse(true, fiber.Map{"message": "OK!"}))
+
+}

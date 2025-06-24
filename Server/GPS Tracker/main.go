@@ -20,7 +20,11 @@ func main() {
 	wsRouter := fiber.New()
 
 	wsRouter.Post("/Auth", handlers.PostAuth)
-	wsRouter.Use("/User/:id", handlers.UserQueryMiddleware)
+	wsRouter.Use("*", handlers.AuthCheckerMiddleware)
+	//wsRouter.Use("/User/:id", handlers.UserQueryMiddleware)
+	wsRouter.Post("/User/Location/Feed", handlers.PostFeed)
+	//wsRouter.Get("/User/Location", handlers.GetLocation)
+	wsRouter.Post("/User/Info", handlers.PostInfo)
 
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {

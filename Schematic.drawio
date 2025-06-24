@@ -201,9 +201,6 @@
         <mxCell id="6eC-OkCbZEAnRRRZwISa-7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1" source="ubSvM6Ma5Gg7oKM4FNZG-19" target="6eC-OkCbZEAnRRRZwISa-1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="PBwL0Q7PvouxAEM6X6Tn-4" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1" source="ubSvM6Ma5Gg7oKM4FNZG-19" target="PBwL0Q7PvouxAEM6X6Tn-3">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
         <mxCell id="ubSvM6Ma5Gg7oKM4FNZG-19" value="/User" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontFamily=Helvetica;fontColor=default;" vertex="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1">
           <mxGeometry x="404" y="280" width="70" height="50" as="geometry" />
         </mxCell>
@@ -225,14 +222,6 @@
         <mxCell id="jGCPDsBbcdj4XH3yvUyG-6" value="/Auth" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontFamily=Helvetica;fontColor=default;" vertex="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1">
           <mxGeometry x="150" y="560" width="70" height="50" as="geometry" />
         </mxCell>
-        <mxCell id="rJpItGNF__AbYo4zj1-q-0" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;fontFamily=Helvetica;fontSize=18;fontColor=default;exitX=0.964;exitY=0.48;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1" target="rJpItGNF__AbYo4zj1-q-1" source="ubSvM6Ma5Gg7oKM4FNZG-7">
-          <mxGeometry relative="1" as="geometry">
-            <mxPoint x="790" y="480" as="sourcePoint" />
-          </mxGeometry>
-        </mxCell>
-        <mxCell id="rJpItGNF__AbYo4zj1-q-1" value="/&lt;br&gt;`get last location`" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;fontFamily=Helvetica;fontSize=18;" vertex="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1">
-          <mxGeometry x="880" y="466" width="160" height="60" as="geometry" />
-        </mxCell>
         <mxCell id="6eC-OkCbZEAnRRRZwISa-0" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;fontFamily=Helvetica;fontSize=18;fontColor=default;" edge="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1" source="6eC-OkCbZEAnRRRZwISa-1" target="6eC-OkCbZEAnRRRZwISa-2">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -241,9 +230,6 @@
         </mxCell>
         <mxCell id="6eC-OkCbZEAnRRRZwISa-2" value="[Post]&lt;br&gt;`modify` (if /User)" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontFamily=Helvetica;fontColor=default;" vertex="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1">
           <mxGeometry x="503.75" y="130" width="200" height="50" as="geometry" />
-        </mxCell>
-        <mxCell id="PBwL0Q7PvouxAEM6X6Tn-3" value="/friends" style="text;html=1;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=18;fontFamily=Helvetica;fontColor=default;" vertex="1" parent="ubSvM6Ma5Gg7oKM4FNZG-1">
-          <mxGeometry x="150" y="280" width="70" height="50" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>
