@@ -13,7 +13,7 @@ var pool *pgxpool.Pool //an address
 
 func Initialize() {
 	once.Do(func() {
-		dbpool, err := pgxpool.New(context.Background(), "postgres://user:pass@localhost:5432/mydb")
+		dbpool, err := pgxpool.New(context.Background(), "postgres://postgres:newpassword@localhost:5432/FindMy")
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -4,6 +4,7 @@ import (
 	database "FindMy/GPSTracker/Database"
 	model "FindMy/GPSTracker/Model"
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -18,7 +19,9 @@ func PostAuth(c *fiber.Ctx) error {
 		return c.Send(model.ParseResponse(false, fiber.Map{"message": "invalid token"}))
 	}
 
-	user, expires := database.CheckToken(c.Context(), token) //c.context(): if the client has been disconnected, the database query will be cancelling.
+	pool := database.GetPool()
+	fmt.Println(pool)
+	user, expires := database.CheckToken(context.Background(), token) //c.context(): if the client has been disconnected, the database query will be cancelling. (it cant be because c.context() is fake http request, not websocket's context)
 
 	if user == -1 {
 		return c.Send(model.ParseResponse(false, fiber.Map{"message": "wrong token"}))
@@ -46,7 +49,7 @@ func UserQueryMiddleware(c *fiber.Ctx) error {
 		return c.Send(model.ParseResponse(false, fiber.Map{"message": "invalid id"}))
 	}
 
-	bool := database.CheckUser(c.Context(), i64)
+	bool := database.CheckUser(context.Background(), i64)
 
 	if !bool {
 		return c.Send(model.ParseResponse(false, fiber.Map{"message": "user not found"}))
