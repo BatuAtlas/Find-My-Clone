@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public."Userinfo"
     "isCharging" boolean,
     battery bytea,
     event bytea,
-    "lastUpdate" time with time zone,
+    "lastUpdate" timestamp with time zone,
     CONSTRAINT "Userinfo_pkey" PRIMARY KEY ("user"),
     CONSTRAINT "Userinfo_user_fkey" FOREIGN KEY ("user")
         REFERENCES public."User" (id) MATCH SIMPLE
