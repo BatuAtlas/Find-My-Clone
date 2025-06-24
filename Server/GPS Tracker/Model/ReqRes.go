@@ -33,3 +33,8 @@ func ParseResponse(status bool, response interface{}) []byte {
 	}
 	return data
 }
+
+func ParseJson(data []byte) (res map[string]interface{}) {
+	json.Unmarshal(data, &res)
+	return
+}

@@ -1,6 +1,8 @@
 package main
 
 import (
+	database "FindMy/GPSTracker/Database"
+	handlers "FindMy/GPSTracker/Handlers"
 	model "FindMy/GPSTracker/Model"
 	"encoding/json"
 	"log"
@@ -10,14 +12,15 @@ import (
 	"github.com/valyala/fasthttp"
 )
 
-var connections = make(map[string]bool)
+var connections = make(map[string]map[string]interface{})
 
 func main() {
+	database.Initialize()
 	app := fiber.New()
+	wsRouter := fiber.New()
 
-	/*app.Get("/", func(c *fiber.Ctx) error {
-		return c.Send(model.ParseResponse(true, c.Body()))
-	})*/
+	wsRouter.Post("/Auth", handlers.PostAuth)
+	wsRouter.Use("/User/:id", handlers.UserQueryMiddleware)
 
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {
@@ -28,14 +31,16 @@ func main() {
 	})
 
 	app.Get("/ws", websocket.New(func(c *websocket.Conn) {
-		connections[c.Headers("Sec-Websocket-Key")] = true
+		connections[c.Headers("Sec-Websocket-Key")] = map[string]interface{}{"isOpen": true}
+
+		session := connections[c.Headers("Sec-Websocket-Key")]
 
 		c.SetCloseHandler(func(code int, text string) error {
-			connections[c.Headers("Sec-Websocket-Key")] = false
+			session["isOpen"] = false
 			return nil
 		})
 
-		for connections[c.Headers("Sec-Websocket-Key")] {
+		for session["isOpen"].(bool) {
 			var jsn model.Request
 			err := c.ReadJSON(&jsn)
 
@@ -52,19 +57,18 @@ func main() {
 				continue
 			}
 
-			ctx := fasthttp.RequestCtx{}
-			ctx.Request.Header.SetMethod(jsn.Method)
+			ctx := new(fasthttp.RequestCtx)
 			ctx.Request.SetRequestURI(jsn.Endpoint)
+			ctx.Request.Header.SetMethod(jsn.Method)
 			ctx.Request.SetBody(jsn.Data)
+			ctx.SetUserValue("session", session)
 
-			app.Handler()(&ctx)
+			wsRouter.Handler()(ctx)
 
 			c.WriteMessage(websocket.TextMessage, ctx.Response.Body())
 		}
 
 	}))
 
-	//TODO: create a class, its works both websocket and http. if is websocket, gets a endpoint url and process etc.
-	// * there will be multiple channel support (websocket and http)
 	log.Fatal(app.Listen(":4215"))
 }
