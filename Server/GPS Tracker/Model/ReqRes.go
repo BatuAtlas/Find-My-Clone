@@ -10,6 +10,7 @@ import (
 
 type Response struct {
 	Status   bool        `json:"status"`
+	Code     int         `json:"code"`
 	Response interface{} `json:"response"`
 }
 
@@ -19,16 +20,16 @@ type Request struct {
 	Data     json.RawMessage `json:"data"`
 }
 
-func ParseResponse(status bool, response interface{}) []byte {
+func ParseResponse(status bool, code int, response interface{}) []byte {
 
 	if reflect.TypeOf(response) == reflect.TypeOf([]byte{}) {
 		json.Unmarshal(response.([]byte), &response)
 	}
 
-	data, err := json.Marshal(Response{Status: status, Response: response})
+	data, err := json.Marshal(Response{Status: status, Code: code, Response: response})
 	if err != nil {
-		data2 := ParseResponse(false, fiber.Map{"message": "Json Handle Error", "errorcode": 48})
-		log.Println("Errcode 48 = " + err.Error())
+		data2 := ParseResponse(false, 231, fiber.Map{"message": "Json Handle Error", "errorcode": 48})
+		log.Println("Errcode 231 = " + err.Error())
 		return data2
 	}
 	return data
