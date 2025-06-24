@@ -1,7 +1,7 @@
 CREATE TABLE public."User"
 (
     id bigserial NOT NULL,
-    nickname character varying(45) NOT NULL,
+    nickname character varying(64) NOT NULL,
     profilephoto text,
     friends bigint[],
     PRIMARY KEY (id)

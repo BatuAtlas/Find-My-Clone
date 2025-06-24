@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS public."Userinfo"
 (
     "user" bigint NOT NULL,
-    status character varying(50) COLLATE pg_catalog."default",
+    status character varchar(200) COLLATE pg_catalog."default",
     "isCharging" boolean,
     battery bytea,
     event bytea,
