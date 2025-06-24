@@ -1,6 +1,6 @@
 CREATE TABLE public."Authorization"
 (
-    token character varying(64)[] NOT NULL,
+    token character varying(64) NOT NULL,
     "user" bigint NOT NULL, /*user id*/
     expires timestamp with time zone,
     PRIMARY KEY (token)

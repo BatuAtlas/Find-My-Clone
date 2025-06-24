@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS public."Userinfo"
 (
     "user" bigint NOT NULL,
-    status character varying(50)[] COLLATE pg_catalog."default",
+    status character varying(50) COLLATE pg_catalog."default",
     "isCharging" boolean,
     battery bytea,
     event bytea,
@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS public."Userinfo"
     CONSTRAINT "Userinfo_user_fkey" FOREIGN KEY ("user")
         REFERENCES public."User" (id) MATCH SIMPLE
         ON UPDATE NO ACTION
-        ON DELETE NO CASCADE
+        ON DELETE CASCADE
         NOT VALID
 )
 
