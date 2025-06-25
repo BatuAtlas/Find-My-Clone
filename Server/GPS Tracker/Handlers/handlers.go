@@ -4,8 +4,6 @@ import (
 	database "FindMy/GPSTracker/Database"
 	model "FindMy/GPSTracker/Model"
 	"context"
-	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -19,8 +17,6 @@ func PostAuth(c *fiber.Ctx) error {
 		return c.Send(model.ParseResponse(false, 19, fiber.Map{"message": "invalid token"}))
 	}
 
-	pool := database.GetPool()
-	fmt.Println(pool)
 	user, expires := database.CheckToken(context.Background(), token) //c.context(): if the client has been disconnected, the database query will be cancelling. (it cant be because c.context() is fake http request, not websocket's context)
 
 	if user == -1 {
@@ -38,24 +34,6 @@ func PostAuth(c *fiber.Ctx) error {
 	session["user.id"] = user
 
 	return c.Send(model.ParseResponse(true, 40, fiber.Map{"message": "authorization succesfully completed"}))
-}
-
-// /User/:id
-func UserQueryMiddleware(c *fiber.Ctx) error {
-	id := c.Params("id")
-	i64, err := strconv.ParseInt(id, 10, 64)
-
-	if err != nil || i64 == 0 || i64 == -1 {
-		return c.Send(model.ParseResponse(false, 49, fiber.Map{"message": "invalid id"}))
-	}
-
-	bool := database.CheckUser(context.Background(), i64)
-
-	if !bool {
-		return c.Send(model.ParseResponse(false, 55, fiber.Map{"message": "user not found"}))
-	}
-
-	return c.Next()
 }
 
 func PostFeed(c *fiber.Ctx) error {
@@ -85,6 +63,10 @@ func PostFeed(c *fiber.Ctx) error {
 func AuthCheckerMiddleware(c *fiber.Ctx) error {
 	session := c.Context().UserValue("session").(map[string]interface{})
 	if session["auth.token"] != nil {
+		return c.Next()
+	}
+
+	if c.Path() == "/Auth" {
 		return c.Next()
 	}
 

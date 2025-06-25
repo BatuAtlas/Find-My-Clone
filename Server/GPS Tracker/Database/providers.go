@@ -22,17 +22,8 @@ func CheckToken(c context.Context, token string) (user int64, expires *time.Time
 	return
 }
 
-func CheckUser(c context.Context, id int64) (exist bool) {
-	var row pgx.Row = pool.QueryRow(c, "SELECT EXISTS (SELECT 1 FROM \"User\" WHERE id = $1)", id)
-
-	if row.Scan(&exist) != nil {
-		return false
-	}
-	return
-}
-
 func FeedGPS(c context.Context, userid int64, lat float64, lon float64, timestamp time.Time) error {
-	_, err := pool.Exec(context.Background(), "UPDATE \"GPS\" SET \"lat\"=$2, \"lon\"=$3, \"timestamp\"=$4 WHERE \"user\" = $1", userid, lat, lon, timestamp)
+	_, err := pool.Exec(context.Background(), "INSERT INTO \"GPS\" (\"lat\",\"lon\",\"timestamp\") VALUES ($2,$3,$4) WHERE \"user\" = $1", userid, lat, lon, timestamp)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -41,7 +32,7 @@ func FeedGPS(c context.Context, userid int64, lat float64, lon float64, timestam
 }
 
 func GetLocation(c context.Context, id int64) (lat float64, lon float64, timestamp time.Time) {
-	var row pgx.Row = pool.QueryRow(c, "SELECT \"lat\", \"lon\", \"timestamp\" FROM \"GPS\" WHERE \"user\" = $1", id)
+	var row pgx.Row = pool.QueryRow(c, "SELECT \"lat\", \"lon\", \"timestamp\" FROM \"GPS\" WHERE \"user\" = $1 ORDER BY \"timestamp\" DESC LIMIT 1", id)
 
 	if row.Scan(&lat, &lon, &timestamp) != nil {
 		return 0, 0, time.Time{}
