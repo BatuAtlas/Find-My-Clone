@@ -1,11 +1,17 @@
-CREATE TABLE public."User"
+-- Table: public.User
+
+-- DROP TABLE IF EXISTS public."User";
+
+CREATE TABLE IF NOT EXISTS public."User"
 (
-    id bigserial NOT NULL,
-    nickname character varying(64) NOT NULL,
-    profilephoto text,
+    id bigint NOT NULL DEFAULT nextval('"User_id_seq"'::regclass),
+    nickname character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    profilephoto text COLLATE pg_catalog."default",
     friends bigint[],
-    PRIMARY KEY (id)
-);
+    CONSTRAINT "User_pkey" PRIMARY KEY (id)
+)
+
+TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public."User"
     OWNER to postgres;

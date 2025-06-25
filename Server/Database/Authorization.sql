@@ -1,10 +1,16 @@
-CREATE TABLE public."Authorization"
+-- Table: public.Authorization
+
+-- DROP TABLE IF EXISTS public."Authorization";
+
+CREATE TABLE IF NOT EXISTS public."Authorization"
 (
-    token character varying(64) NOT NULL,
-    "user" bigint NOT NULL, /*user id*/
+    token character varying(64) COLLATE pg_catalog."default" NOT NULL,
+    "user" bigint NOT NULL,
     expires timestamp with time zone,
-    PRIMARY KEY (token)
-);
+    CONSTRAINT "Authorization_pkey" PRIMARY KEY (token)
+)
+
+TABLESPACE pg_default;
 
 ALTER TABLE IF EXISTS public."Authorization"
     OWNER to postgres;
