@@ -23,6 +23,7 @@ func main() {
 	app.Get("/User/:id/", handlers.GetUserFromID)
 	app.Get("/User/:id/Location", handlers.GetLocation)
 	app.Get("/User/:id/Info", handlers.GetInfo)
+	app.Post("/User/:id/Info", handlers.PostInfo)
 
 	log.Fatal(app.Listen(":4216"))
 }
