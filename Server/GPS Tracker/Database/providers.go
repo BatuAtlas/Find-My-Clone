@@ -41,7 +41,7 @@ func GetLocation(c context.Context, id int64) (lat float64, lon float64, timesta
 }
 
 func ChangeInfo(c context.Context, user int64, status string, battery byte, isCharging bool, event byte) error {
-	_, err := pool.Exec(context.Background(), "UPDATE \"UserInfo\" SET \"status\"=$2, \"battery\"=$3, \"isCharging\"=$4, \"event\": $5 WHERE \"user\" = $1", user, status, battery, isCharging, event)
+	_, err := pool.Exec(context.Background(), "UPDATE \"UserInfo\" SET \"status\"=$2, \"battery\"=$3, \"isCharging\"=$4, \"event\"=$5, \"timestamp\"=$6 WHERE \"user\" = $1", user, status, battery, isCharging, event, time.Now())
 	if err != nil {
 		log.Println(err)
 		return err

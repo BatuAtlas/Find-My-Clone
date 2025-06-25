@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -67,4 +68,13 @@ func GetInfo(c context.Context, id int64) (*string, *bool, *int16, *int16, *time
 
 	row.Scan(&status, &charging, &battery, &event, &lastupdate)
 	return status, charging, battery, event, lastupdate
+}
+
+func ChangeInfo(c context.Context, user int64, status string, battery byte, isCharging bool, event byte) error {
+	_, err := pool.Exec(context.Background(), "UPDATE \"UserInfo\" SET \"status\"=$2, \"battery\"=$3, \"isCharging\"=$4, \"event\"=$5, \"timestamp\"=$6 WHERE \"user\" = $1", user, status, battery, isCharging, event, time.Now())
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return nil
 }

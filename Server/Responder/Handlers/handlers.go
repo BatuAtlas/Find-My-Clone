@@ -40,16 +40,14 @@ func UserQueryMiddleware(c *fiber.Ctx) error {
 
 // User/:id
 func GetUserFromID(c *fiber.Ctx) error {
-	id := c.Locals("id").(int64)
-	nickname, profilephoto := database.GetUser(context.Background(), id)
+	nickname, profilephoto := database.GetUser(context.Background(), c.Locals("id").(int64))
 
 	return c.Send(model.ParseResponse(true, 4391, fiber.Map{"nickname": nickname, "profilephoto": profilephoto}))
 }
 
 // User/
 func GetUser(c *fiber.Ctx) error {
-	id := c.Locals("user.id").(int64)
-	nickname, profilephoto := database.GetUser(context.Background(), id)
+	nickname, profilephoto := database.GetUser(context.Background(), c.Locals("user.id").(int64))
 
 	return c.Send(model.ParseResponse(true, 4392, fiber.Map{"nickname": nickname, "profilephoto": profilephoto}))
 }
@@ -122,8 +120,7 @@ func AuthCheckerMiddleware(c *fiber.Ctx) error {
 ////////////////
 
 func GetLocation(c *fiber.Ctx) error {
-	id := c.Locals("id").(int64)
-	lat, lon, timestamp := database.GetLocation(context.Background(), id)
+	lat, lon, timestamp := database.GetLocation(context.Background(), c.Locals("id").(int64))
 
 	if timestamp.IsZero() {
 		return c.Send(model.ParseResponse(true, 1311, fiber.Map{
@@ -139,8 +136,7 @@ func GetLocation(c *fiber.Ctx) error {
 }
 
 func GetInfo(c *fiber.Ctx) error {
-	id := c.Locals("id").(int64)
-	status, isCharging, battery, event, lastUpdate := database.GetInfo(context.Background(), id)
+	status, isCharging, battery, event, lastUpdate := database.GetInfo(context.Background(), c.Locals("id").(int64))
 
 	if lastUpdate == nil {
 		return c.Send(model.ParseResponse(true, 1465, fiber.Map{"message": "this user doesn't have info"}))
@@ -153,4 +149,24 @@ func GetInfo(c *fiber.Ctx) error {
 		"event":      event,
 		"lastUpdate": lastUpdate,
 	}))
+}
+
+func PostInfo(c *fiber.Ctx) error {
+	jsn := model.ParseJson(c.Body())
+
+	status, ok1 := jsn["status"].(string)
+	battery, ok2 := jsn["battery"].(byte)
+	isCharging, ok3 := jsn["isCharging"].(bool)
+	event, ok4 := jsn["event"].(byte)
+
+	if !ok1 || !ok2 || !ok3 || !ok4 {
+		return c.Send(model.ParseResponse(false, 1715, fiber.Map{"message": "invalid form"}))
+	}
+
+	err := database.ChangeInfo(context.Background(), c.Locals("id").(int64), status, battery, isCharging, event)
+
+	if err != nil {
+		return c.Send(model.ParseResponse(true, 1721, fiber.Map{"message": "failed :(cc"}))
+	}
+	return c.Send(model.ParseResponse(true, 1723, fiber.Map{"message": "OK!"}))
 }

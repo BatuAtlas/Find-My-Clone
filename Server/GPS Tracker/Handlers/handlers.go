@@ -42,11 +42,11 @@ func PostFeed(c *fiber.Ctx) error {
 
 	lat, ok := jsn["lat"].(float64)
 	lon, ok2 := jsn["lat"].(float64)
-	timestamp, ok3 := jsn["timestamp"].(string) /*now.toISOString();*/
+	//timestamp, ok3 := jsn["timestamp"].(string) /*now.toISOString();*/
+	t := time.Now()
+	//t, err := time.Parse(time.RFC3339, timestamp)
 
-	t, err := time.Parse(time.RFC3339, timestamp)
-
-	if !ok || !ok2 || !ok3 || err != nil {
+	if !ok || !ok2 /*||  !ok3 || err != nil*/ {
 		return c.Send(model.ParseResponse(false, 72, fiber.Map{"message": "invalid form"}))
 	}
 
