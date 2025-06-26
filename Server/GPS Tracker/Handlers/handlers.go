@@ -142,5 +142,39 @@ func Subscribe(c *fiber.Ctx) error {
 
 	}
 
+	subsrs := session["subscriptions"]
+	if subsrs == nil {
+		subsrs = new([]int64)
+		session["subscriptions.timestamp"] = time.Now()
+	}
+
+	subsrs = append(subsrs.([]int64), users...)
+
 	return c.Send(model.ParseResponse(true, 14523, fiber.Map{"message": "OK!"}))
+}
+
+func UnSubscribe(c *fiber.Ctx) error { // unsubscribe all
+	session := c.Context().UserValue("session").(map[string]interface{})
+	subsrs := session["subscriptions"]
+
+	if subsrs == nil {
+		return c.Send(model.ParseResponse(false, 1623, fiber.Map{"message": "You aren't subscribed anything."}))
+	}
+
+	id := session["user.id"].(int64)
+
+	for _, user := range subsrs.([]int64) {
+		if connections.Userconnection[user] == nil {
+			continue
+		}
+
+		subs := connections.Userconnection[user]["subscribers"]
+		if subs == nil {
+			continue
+		}
+
+		subs = database.RemoveValue(subs.([]int64), id)
+	}
+
+	return nil
 }

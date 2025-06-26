@@ -25,8 +25,8 @@ func main() {
 	//wsRouter.Get("/User/Location", handlers.GetLocation)
 	wsRouter.Post("/User/Info", handlers.PostInfo)
 
-	wsRouter.Post("/Subscribe/", handlers.Subscribe) // when client entered the android app ui, subscribe the gps traffic.
-	//wsRouter.Post("/UnSubscribe/", handlers.) // its automatic calling on 20 minutes later when subscribed.
+	wsRouter.Post("/Subscribe/", handlers.Subscribe)     // when client entered the android app ui, subscribe the gps traffic.
+	wsRouter.Post("/UnSubscribe/", handlers.UnSubscribe) // its automatic calling on 20 minutes later when subscribed.
 
 	app.Use("/ws", func(c *fiber.Ctx) error {
 		if websocket.IsWebSocketUpgrade(c) {

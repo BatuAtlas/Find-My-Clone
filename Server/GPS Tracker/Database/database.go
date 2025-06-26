@@ -41,10 +41,10 @@ func IsSubset(sub, full []int64) bool {
 	return true
 }
 
-func RemoveValue(s []int64, x int64) []int64 { //chatgpt function
-	result := s[:0]
-	for _, v := range s {
-		if v != x {
+func RemoveValue(array []int64, remove int64) []int64 { //chatgpt function
+	result := array[:0]
+	for _, v := range array {
+		if v != remove {
 			result = append(result, v)
 		}
 	}
