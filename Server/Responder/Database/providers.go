@@ -78,3 +78,19 @@ func ChangeInfo(c context.Context, user int64, status string, battery byte, isCh
 	}
 	return nil
 }
+
+func GetFriends(c context.Context, user int64) []int64 {
+	var row pgx.Row = pool.QueryRow(c, "SELECT \"friends\" FROM \"User\" WHERE \"id\" = $1", user)
+	var arr *[]int64
+
+	err := row.Scan(&arr)
+	if err != nil {
+		fmt.Println(err)
+		return []int64{}
+	}
+	if arr == nil {
+		return []int64{}
+
+	}
+	return *arr
+}

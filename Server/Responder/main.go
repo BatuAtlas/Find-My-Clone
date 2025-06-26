@@ -25,5 +25,7 @@ func main() {
 	app.Get("/User/:id/Info", handlers.GetInfo)
 	app.Post("/User/:id/Info", handlers.PostInfo)
 
+	app.Get("/friends/locations", handlers.FriendsLocations)
+
 	log.Fatal(app.Listen(":4216"))
 }

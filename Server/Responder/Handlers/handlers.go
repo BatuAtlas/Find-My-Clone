@@ -170,3 +170,26 @@ func PostInfo(c *fiber.Ctx) error {
 	}
 	return c.Send(model.ParseResponse(true, 1723, fiber.Map{"message": "OK!"}))
 }
+
+func FriendsLocations(c *fiber.Ctx) error {
+	var friends []int64 = database.GetFriends(context.Background(), c.Locals("user.id").(int64))
+
+	var locations []fiber.Map
+
+	for _, friend := range friends {
+		lat, lon, tmstmp := database.GetLocation(context.Background(), friend)
+
+		if !tmstmp.IsZero() {
+			locations = append(locations, fiber.Map{
+				"user":      friend,
+				"lat":       lat,
+				"lon":       lon,
+				"timestamp": tmstmp,
+			})
+		}
+	}
+
+	return c.Send(model.ParseResponse(true, 1778, fiber.Map{
+		"friends": locations,
+	}))
+}
