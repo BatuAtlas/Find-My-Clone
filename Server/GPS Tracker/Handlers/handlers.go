@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	connections "FindMy/GPSTracker/Connections"
 	database "FindMy/GPSTracker/Database"
 	model "FindMy/GPSTracker/Model"
 	"context"
@@ -32,6 +33,7 @@ func PostAuth(c *fiber.Ctx) error {
 
 	session["auth.token"] = token
 	session["user.id"] = user
+	connections.Userconnection[user] = session
 
 	return c.Send(model.ParseResponse(true, 40, fiber.Map{"message": "authorization succesfully completed"}))
 }
@@ -50,14 +52,18 @@ func PostFeed(c *fiber.Ctx) error {
 		return c.Send(model.ParseResponse(false, 72, fiber.Map{"message": "invalid form"}))
 	}
 
-	err2 := database.FeedGPS(context.Background(), session["user.id"].(int64), lat, lon, t)
+	id := session["user.id"].(int64)
+	err2 := database.FeedGPS(context.Background(), id, lat, lon, t)
 
 	if err2 != nil {
 		return c.Send(model.ParseResponse(true, 78, fiber.Map{"message": "failed :cc"}))
 	}
 
-	return c.Send(model.ParseResponse(true, 81, fiber.Map{"message": "OK!"}))
+	if session["subscribers"] != nil && len(session["subscribers"].([]int64)) != 0 {
+		SubscribesPublish(session["subscribers"].([]int64), lat, lon, t, id)
+	}
 
+	return c.Send(model.ParseResponse(true, 81, fiber.Map{"message": "OK!"}))
 }
 
 func AuthCheckerMiddleware(c *fiber.Ctx) error {
@@ -104,4 +110,37 @@ func PostInfo(c *fiber.Ctx) error {
 	}
 	return c.Send(model.ParseResponse(true, 123, fiber.Map{"message": "OK!"}))
 
+}
+
+func Subscribe(c *fiber.Ctx) error {
+	session := c.Context().UserValue("session").(map[string]interface{})
+	jsn := model.ParseJson(c.Body())
+
+	users, ok1 := jsn["users"].([]int64) // users are usually all friends.
+
+	if !ok1 || len(users) <= 0 {
+		return c.Send(model.ParseResponse(false, 1215, fiber.Map{"message": "invalid form"}))
+	}
+
+	friends := database.GetFriends(context.Background(), session["user.id"].(int64))
+
+	if !database.IsSubset(users, friends) { //is a all users friend?
+		return c.Send(model.ParseResponse(false, 4128, fiber.Map{"message": "some users isn't your friend"}))
+	}
+
+	for _, user := range users {
+		if connections.Userconnection[user] == nil {
+			continue
+		}
+
+		subs := connections.Userconnection[user]["subscribers"]
+		if subs == nil {
+			subs = new([]int64)
+		}
+
+		subs = append(subs.([]int64), user)
+
+	}
+
+	return c.Send(model.ParseResponse(true, 14523, fiber.Map{"message": "OK!"}))
 }
