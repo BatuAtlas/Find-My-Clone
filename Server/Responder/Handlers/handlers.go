@@ -193,3 +193,11 @@ func FriendsLocations(c *fiber.Ctx) error {
 		"friends": locations,
 	}))
 }
+
+func GetFriends(c *fiber.Ctx) error {
+	var friends []int64 = database.GetFriends(context.Background(), c.Locals("user.id").(int64))
+
+	return c.Send(model.ParseResponse(true, 1778, fiber.Map{
+		"friends": friends,
+	}))
+}
