@@ -23,7 +23,7 @@ func CheckToken(c context.Context, token string) (user int64, expires *time.Time
 }
 
 func FeedGPS(c context.Context, userid int64, lat float64, lon float64, timestamp time.Time) error {
-	_, err := pool.Exec(context.Background(), "INSERT INTO \"GPS\" (\"lat\",\"lon\",\"timestamp\") VALUES ($2,$3,$4) WHERE \"user\" = $1", userid, lat, lon, timestamp)
+	_, err := pool.Exec(c, "INSERT INTO \"GPS\" (\"lat\",\"lon\",\"timestamp\") VALUES ($2,$3,$4) WHERE \"user\" = $1", userid, lat, lon, timestamp)
 	if err != nil {
 		log.Println(err)
 		return err
@@ -41,7 +41,7 @@ func GetLocation(c context.Context, id int64) (lat float64, lon float64, timesta
 }
 
 func ChangeInfo(c context.Context, user int64, status string, battery byte, isCharging bool, event byte) error {
-	_, err := pool.Exec(context.Background(), "UPDATE \"UserInfo\" SET \"status\"=$2, \"battery\"=$3, \"isCharging\"=$4, \"event\"=$5, \"timestamp\"=$6 WHERE \"user\" = $1", user, status, battery, isCharging, event, time.Now())
+	_, err := pool.Exec(c, "UPDATE \"UserInfo\" SET \"status\"=$2, \"battery\"=$3, \"isCharging\"=$4, \"event\"=$5, \"timestamp\"=$6 WHERE \"user\" = $1", user, status, battery, isCharging, event, time.Now())
 	if err != nil {
 		log.Println(err)
 		return err
