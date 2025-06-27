@@ -15,10 +15,10 @@ Goals on the backend side:
 
 ### GPS Tracker Server
 ![](https://github.com/BatuAtlas/Find-My-Clone/blob/main/Assets/Schematic-GPS%20Tracker.png?raw=true)
-
+---
 ### Interface Server
 ![](https://github.com/BatuAtlas/Find-My-Clone/blob/main/Assets/Schematic-Interface%20Server.png?raw=true)
-
+---
 ### Responder Server
 ![](https://github.com/BatuAtlas/Find-My-Clone/blob/main/Assets/Schematic-Responder.png?raw=true)
-
+---
