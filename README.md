@@ -8,3 +8,17 @@ Goals on the backend side:
 - [ ] Built a client app :zap:
 - [ ] Create a Dockerfile for installation
 - [ ] Implement end-to-end encryption (E2EE) for GPS data
+
+
+
+## Images
+
+### GPS Tracker Server
+![](assets\Schematic-GPS Tracker.png)
+
+###Interface Server
+![](assets\Schematic-Interface Server.png)
+
+### Responder Server
+![](assets\Schematic-Responder.png)
+
