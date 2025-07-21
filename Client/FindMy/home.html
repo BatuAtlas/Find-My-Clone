@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My - Home</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            overflow: auto; /* kaydırmayı aktif tut */
+            scrollbar-width: none; /* Firefox scrollbar gizle */
+            -ms-overflow-style: none; /* IE scrollbar gizle */
+        }
+
+        ::-webkit-scrollbar {
+            display: none; /* Chrome ve Safari scrollbar gizle */
+        }
+    </style>
+
+   <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 44px;
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 1001;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .time {
+            font-weight: 700;
+        }
+
+        .battery-wifi {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        /* Map Container */
+        #map {
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        /* Floating Buttons Container */
+        .floating-buttons {
+            position: absolute;
+            top: 60px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            z-index: 1000;
+            transition: all 0.4s ease;
+        }
+
+        .floating-buttons.collapsed {
+            gap: 0;
+        }
+
+        .floating-buttons.collapsed .floating-btn-container:not(:first-child) {
+            opacity: 0;
+            transform: translateY(-40px);
+            pointer-events: none;
+        }
+
+        .floating-buttons.collapsed .floating-btn-container:not(:first-child) .btn-label {
+            opacity: 0;
+        }
+
+        .floating-btn-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.4s ease;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .floating-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+
+        .floating-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25);
+        }
+
+        .floating-btn:active {
+            transform: scale(0.95);
+        }
+
+        .floating-btn.search {
+            background: rgba(0, 122, 255, 0.98);
+            color: white;
+        }
+
+        .floating-btn.search.selected {
+            background: rgba(0, 122, 255, 1);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.3), 0 8px 30px rgba(0, 122, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+        .floating-btn.location {
+            background: rgba(52, 199, 89, 0.98);
+            color: white;
+        }
+
+        .floating-btn.location.selected {
+            background: rgba(52, 199, 89, 1);
+            box-shadow: 0 0 0 3px rgba(52, 199, 89, 0.3), 0 8px 30px rgba(52, 199, 89, 0.4);
+            transform: scale(1.05);
+        }
+
+        .floating-btn.filter {
+            background: rgba(255, 149, 0, 0.98);
+            color: white;
+        }
+
+        .floating-btn.filter.selected {
+            background: rgba(255, 149, 0, 1);
+            box-shadow: 0 0 0 3px rgba(255, 149, 0, 0.3), 0 8px 30px rgba(255, 149, 0, 0.4);
+            transform: scale(1.05);
+        }
+
+        .floating-btn.toggle {
+            background: rgba(120, 120, 128, 0.98);
+            color: white;
+            position: relative;
+        }
+
+        .floating-btn.toggle::after {
+            content: '';
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border: 2px solid white;
+            border-top: none;
+            border-right: none;
+            transform: rotate(-45deg);
+            transition: transform 0.3s ease;
+        }
+
+        .floating-buttons.collapsed .floating-btn.toggle::after {
+            transform: rotate(135deg);
+        }
+
+        .btn-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(0, 0, 0, 0.8);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 4px 8px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            margin-top: 2px;
+        }
+
+        .floating-btn-container.selected .btn-label {
+            background: rgba(255, 255, 255, 1);
+            color: rgba(0, 0, 0, 0.9);
+            font-weight: 700;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Blur Loading Styles */
+        .blur-loading {
+            filter: blur(8px);
+            opacity: 0.6;
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+
+        .blur-loading.loaded {
+            filter: blur(0px);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .placeholder-text {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            color: transparent;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Remove scrollbars */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .floating-buttons {
+                top: 50px;
+                right: 15px;
+                gap: 6px;
+            }
+            
+            .floating-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+            
+            .btn-label {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+        }
+
+        /* Map Controls Styling */
+        .leaflet-control-container {
+            display: none;
+        }
+
+        .leaflet-control-zoom {
+            display: block !important;
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .leaflet-control-zoom a {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border: none !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        /* Profile marker styles */
+        .profile-marker {
+            background: transparent !important;
+            border: none !important;
+        }
+
+        .profile-marker div:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="time" id="current-time">9:41</div>
+        <div class="battery-wifi">
+            <span>📶</span>
+            <span>🔋</span>
+        </div>
+    </div>
+
+    <!-- Interactive Map -->
+    <div id="map" class="blur-loading"></div>
+
+    <!-- Floating Action Buttons -->
+    <div class="floating-buttons collapsed blur-loading" id="floating-buttons">
+        <div class="floating-btn-container">
+            <button class="floating-btn toggle" onclick="toggleFloatingButtons()" title="Toggle Menu">
+            </button>
+            <div class="btn-label">Menu</div>
+        </div>
+        <div class="floating-btn-container" id="search-container">
+            <button class="floating-btn search" onclick="handleSearch()" title="Search">
+                🔍
+            </button>
+            <div class="btn-label">Search</div>
+        </div>
+        <div class="floating-btn-container selected" id="location-container">
+            <button class="floating-btn location selected" onclick="handleLocation()" title="My Location">
+                📍
+            </button>
+            <div class="btn-label">Location</div>
+        </div>
+        <div class="floating-btn-container" id="filter-container">
+            <button class="floating-btn filter" onclick="handleFilter()" title="Filter">
+                ⚙️
+            </button>
+            <div class="btn-label">Filter</div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize the map
+        let map = L.map('map', {
+            zoomControl: true,
+            attributionControl: false
+        }).setView([37.7749, -122.4194], 13); // San Francisco coordinates
+
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Create custom profile photo markers
+        function createProfileMarker(initial, color, isCurrentUser = false) {
+            const size = isCurrentUser ? 50 : 40;
+            const borderColor = isCurrentUser ? '#007AFF' : '#ffffff';
+            const borderWidth = isCurrentUser ? 4 : 3;
+            
+            return L.divIcon({
+                className: 'profile-marker',
+                html: `
+                    <div style="
+                        width: ${size}px;
+                        height: ${size}px;
+                        border-radius: 50%;
+                        background: linear-gradient(45deg, ${color}, ${color}dd);
+                        border: ${borderWidth}px solid ${borderColor};
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: ${size * 0.4}px;
+                        font-weight: 700;
+                        color: white;
+                        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    ">${initial}</div>
+                `,
+                iconSize: [size, size],
+                iconAnchor: [size/2, size/2]
+            });
+        }
+
+        // Function to load map data with delay
+        function loadMapData() {
+            setTimeout(() => {
+                // Add profile photo markers
+                const profileMarkers = [
+                    { lat: 37.7749, lng: -122.4194, popup: "You are here", initial: "Y", color: "#007AFF", isCurrentUser: true },
+                    { lat: 37.7849, lng: -122.4094, popup: "Alice Johnson", initial: "A", color: "#ff6b6b" },
+                    { lat: 37.7649, lng: -122.4294, popup: "Bob Smith", initial: "B", color: "#4ecdc4" },
+                    { lat: 37.7549, lng: -122.4394, popup: "Carol Davis", initial: "C", color: "#45b7d1" },
+                    { lat: 37.7949, lng: -122.4494, popup: "David Wilson", initial: "D", color: "#96ceb4" }
+                ];
+
+                profileMarkers.forEach(markerData => {
+                    const marker = createProfileMarker(markerData.initial, markerData.color, markerData.isCurrentUser);
+                    L.marker([markerData.lat, markerData.lng], { icon: marker })
+                        .addTo(map)
+                        .bindPopup(markerData.popup);
+                });
+
+                // Remove blur effect
+                document.querySelectorAll('.blur-loading').forEach(element => {
+                    element.classList.add('loaded');
+                });
+                
+                console.log('Map data loaded');
+            }, 2000); // 2 second loading delay
+        }
+
+        // Start loading map data
+        loadMapData();
+
+        // Floating button handlers
+        function toggleFloatingButtons() {
+            const buttonsContainer = document.getElementById('floating-buttons');
+            buttonsContainer.classList.toggle('collapsed');
+        }
+
+        function setSelectedSetting(settingType) {
+            // Remove selected class from all containers and buttons
+            document.querySelectorAll('.floating-btn-container').forEach(container => {
+                container.classList.remove('selected');
+            });
+            document.querySelectorAll('.floating-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to the chosen setting
+            const container = document.getElementById(`${settingType}-container`);
+            const button = container.querySelector('.floating-btn');
+            container.classList.add('selected');
+            button.classList.add('selected');
+        }
+
+        function handleSearch() {
+            setSelectedSetting('search');
+            alert('Search mode activated - Find friends, places, or locations');
+            // Auto-collapse after action
+            document.getElementById('floating-buttons').classList.add('collapsed');
+        }
+
+        function handleLocation() {
+            setSelectedSetting('location');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    map.setView([lat, lng], 15);
+                    
+                    // Add current location marker
+                    L.marker([lat, lng])
+                        .addTo(map)
+                        .bindPopup('Your current location')
+                        .openPopup();
+                }, function() {
+                    alert('Unable to get your location');
+                });
+            } else {
+                alert('Geolocation is not supported by this browser');
+            }
+            // Auto-collapse after action
+            document.getElementById('floating-buttons').classList.add('collapsed');
+        }
+
+        function handleFilter() {
+            setSelectedSetting('filter');
+            alert('Filter mode activated - Show/hide friends, places, etc.');
+            // Auto-collapse after action
+            document.getElementById('floating-buttons').classList.add('collapsed');
+        }
+
+        // Update time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit',
+                hour12: false 
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Update time every second
+        setInterval(updateTime, 1000);
+        updateTime();
+
+        // Handle map interactions
+        map.on('click', function(e) {
+            console.log('Map clicked at:', e.latlng);
+        });
+
+        // Disable map zoom on double tap to prevent accidental zooming
+        map.doubleClickZoom.disable();
+        
+        // Add touch-friendly interactions
+        map.on('moveend', function() {
+            console.log('Map moved to:', map.getCenter());
+        });
+    </script>
+</body>
+</html>

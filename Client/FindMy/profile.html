@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My - Profile</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            overflow: auto; /* kaydırmayı aktif tut */
+            scrollbar-width: none; /* Firefox scrollbar gizle */
+            -ms-overflow-style: none; /* IE scrollbar gizle */
+        }
+
+        ::-webkit-scrollbar {
+            display: none; /* Chrome ve Safari scrollbar gizle */
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .profile-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .profile-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: white;
+            margin: 0 auto 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-photo::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>') center/60% no-repeat;
+        }
+
+        .username {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-email {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 30px;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 16px;
+            min-width: 80px;
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.8);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profile-actions {
+            width: 100%;
+            max-width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
+        }
+
+        .action-btn.primary {
+            background: rgba(0, 122, 255, 0.8);
+            border-color: rgba(0, 122, 255, 0.9);
+        }
+
+        .action-btn.primary:hover {
+            background: rgba(0, 122, 255, 0.9);
+        }
+
+        .settings-section {
+            width: 100%;
+            max-width: 300px;
+            margin-top: 30px;
+        }
+
+        .settings-item {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .settings-item:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .settings-label {
+            color: white;
+            font-weight: 500;
+        }
+
+        .settings-arrow {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007AFF;
+            background: rgba(255, 255, 255, 1);
+        }
+
+        .photo-selector {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .photo-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .photo-option.selected {
+            border-color: #007AFF;
+            transform: scale(1.1);
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn.cancel {
+            background: rgba(0, 0, 0, 0.1);
+            color: #333;
+        }
+
+        .modal-btn.cancel:hover {
+            background: rgba(0, 0, 0, 0.15);
+        }
+
+        .modal-btn.apply {
+            background: #007AFF;
+            color: white;
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-btn.apply.enabled {
+            opacity: 1;
+            cursor: pointer;
+        }
+
+        .modal-btn.apply.enabled:hover {
+            background: #0056CC;
+        }
+
+        /* Friend Request Styles */
+        .request-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            gap: 12px;
+        }
+
+        .request-photo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .request-info {
+            flex: 1;
+        }
+
+        .request-name {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 2px;
+        }
+
+        .request-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .request-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .request-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .request-btn.accept {
+            background: #34C759;
+            color: white;
+        }
+
+        .request-btn.decline {
+            background: #FF3B30;
+            color: white;
+        }
+
+        .add-friend-section {
+            display: flex;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .add-friend-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.8);
+        }
+
+        .send-btn {
+            padding: 12px 16px;
+            background: #007AFF;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .send-btn:hover {
+            background: #0056CC;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin: 20px 0 12px;
+        }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-overlay.active {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Blur Loading Styles */
+        .blur-loading {
+            filter: blur(8px);
+            opacity: 0.6;
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+
+        .blur-loading.loaded {
+            filter: blur(0px);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .placeholder-text {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            color: transparent;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Remove scrollbars */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .profile-container {
+                padding: 30px 15px;
+            }
+            
+            .profile-photo {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+            
+            .username {
+                font-size: 24px;
+            }
+            
+            .profile-stats {
+                gap: 20px;
+            }
+            
+            .stat-item {
+                padding: 15px;
+                min-width: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-photo" id="profile-photo">
+                <!-- User icon will be displayed via CSS -->
+            </div>
+            <div class="username blur-loading" id="username">Loading User</div>
+            <div class="user-email blur-loading" id="user-email">loading@example.com</div>
+        </div>
+
+        <div class="profile-stats blur-loading">
+            <div class="stat-item">
+                <div class="stat-number" id="friends-count">--</div>
+                <div class="stat-label">Friends</div>
+            </div>
+        </div>
+
+        <div class="profile-actions blur-loading">
+            <button class="action-btn primary" onclick="editProfile()">
+                ✏️ Edit Profile
+            </button>
+        </div>
+
+        <div class="settings-section blur-loading">
+            <div class="settings-item" onclick="addFriends()">
+                <span class="settings-label">Add Friends</span>
+                <span class="settings-arrow">›</span>
+            </div>
+            <div class="settings-item" onclick="openAbout()">
+                <span class="settings-label">About</span>
+                <span class="settings-arrow">›</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal-overlay" id="edit-profile-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Edit Profile</div>
+                <div class="modal-subtitle">Update your username and profile photo</div>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" class="form-input" id="edit-username" placeholder="Enter your username">
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label">Profile Photo</label>
+                <div class="photo-selector" id="photo-selector">
+                    <div class="photo-option" data-color="#007AFF" style="background: linear-gradient(45deg, #007AFF, #007AFFdd);">J</div>
+                    <div class="photo-option" data-color="#ff6b6b" style="background: linear-gradient(45deg, #ff6b6b, #ff6b6bdd);">J</div>
+                    <div class="photo-option" data-color="#4ecdc4" style="background: linear-gradient(45deg, #4ecdc4, #4ecdc4dd);">J</div>
+                    <div class="photo-option" data-color="#45b7d1" style="background: linear-gradient(45deg, #45b7d1, #45b7d1dd);">J</div>
+                    <div class="photo-option" data-color="#96ceb4" style="background: linear-gradient(45deg, #96ceb4, #96ceb4dd);">J</div>
+                    <div class="photo-option" data-color="#feca57" style="background: linear-gradient(45deg, #feca57, #feca57dd);">J</div>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeEditProfile()">Cancel</button>
+                <button class="modal-btn apply" id="apply-btn" onclick="applyProfileChanges()">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Friend Modal -->
+    <div class="modal-overlay" id="add-friend-modal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title">Add Friends</div>
+                <div class="modal-subtitle">Manage friend requests and add new friends</div>
+            </div>
+            
+            <div class="section-title">Requests</div>
+            <div id="friend-requests">
+                <div class="request-item">
+                    <div class="request-photo" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">A</div>
+                    <div class="request-info">
+                        <div class="request-name">Alice Johnson</div>
+                        <div class="request-time">2 hours ago</div>
+                    </div>
+                    <div class="request-actions">
+                        <button class="request-btn accept" onclick="acceptRequest('alice')">Accept</button>
+                        <button class="request-btn decline" onclick="declineRequest('alice')">Decline</button>
+                    </div>
+                </div>
+                <div class="request-item">
+                    <div class="request-photo" style="background: linear-gradient(45deg, #45b7d1, #96ceb4);">M</div>
+                    <div class="request-info">
+                        <div class="request-name">Mike Chen</div>
+                        <div class="request-time">5 hours ago</div>
+                    </div>
+                    <div class="request-actions">
+                        <button class="request-btn accept" onclick="acceptRequest('mike')">Accept</button>
+                        <button class="request-btn decline" onclick="declineRequest('mike')">Decline</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="add-friend-section">
+                <input type="text" class="add-friend-input" id="friend-search" placeholder="Add Friend">
+                <button class="send-btn" onclick="sendFriendRequest()">Send Request</button>
+            </div>
+            
+            <div class="section-title">Expected Requests</div>
+            <div id="expected-requests">
+                <div class="request-item">
+                    <div class="request-photo" style="background: linear-gradient(45deg, #feca57, #ff9ff3);">S</div>
+                    <div class="request-info">
+                        <div class="request-name">Sarah Wilson</div>
+                        <div class="request-time">Pending</div>
+                    </div>
+                </div>
+                <div class="request-item">
+                    <div class="request-photo" style="background: linear-gradient(45deg, #54a0ff, #5f27cd);">T</div>
+                    <div class="request-info">
+                        <div class="request-name">Tom Rodriguez</div>
+                        <div class="request-time">Pending</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn cancel" onclick="closeAddFriend()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script>
+        // Profile action handlers
+        function editProfile() {
+            document.getElementById('edit-profile-modal').classList.add('active');
+            document.getElementById('edit-username').value = document.getElementById('username').textContent;
+            updateApplyButton();
+        }
+
+        function closeEditProfile() {
+            document.getElementById('edit-profile-modal').classList.remove('active');
+            resetEditForm();
+        }
+
+        function resetEditForm() {
+            document.getElementById('edit-username').value = '';
+            document.querySelectorAll('.photo-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            updateApplyButton();
+        }
+
+        function updateApplyButton() {
+            const username = document.getElementById('edit-username').value.trim();
+            const selectedPhoto = document.querySelector('.photo-option.selected');
+            const applyBtn = document.getElementById('apply-btn');
+            
+            if (username && selectedPhoto) {
+                applyBtn.classList.add('enabled');
+            } else {
+                applyBtn.classList.remove('enabled');
+            }
+        }
+
+        function applyProfileChanges() {
+            const applyBtn = document.getElementById('apply-btn');
+            if (!applyBtn.classList.contains('enabled')) return;
+            
+            const username = document.getElementById('edit-username').value.trim();
+            const selectedPhoto = document.querySelector('.photo-option.selected');
+            const color = selectedPhoto.dataset.color;
+            
+            // Close modal and show loading
+            document.getElementById('edit-profile-modal').classList.remove('active');
+            document.getElementById('loading-overlay').classList.add('active');
+            
+            // Simulate loading time
+            setTimeout(() => {
+                // Update profile
+                document.getElementById('username').textContent = username;
+                const profilePhoto = document.getElementById('profile-photo');
+                profilePhoto.style.background = `linear-gradient(45deg, ${color}, ${color}dd)`;
+                profilePhoto.textContent = username.charAt(0).toUpperCase();
+                
+                // Hide loading and reset form
+                document.getElementById('loading-overlay').classList.remove('active');
+                resetEditForm();
+            }, 2000);
+        }
+
+        // Settings handlers
+        function addFriends() {
+            document.getElementById('add-friend-modal').classList.add('active');
+        }
+
+        function closeAddFriend() {
+            document.getElementById('add-friend-modal').classList.remove('active');
+        }
+
+        function acceptRequest(friendId) {
+            alert(`Accepted friend request from ${friendId}`);
+            // Remove the request item
+            event.target.closest('.request-item').remove();
+        }
+
+        function declineRequest(friendId) {
+            alert(`Declined friend request from ${friendId}`);
+            // Remove the request item
+            event.target.closest('.request-item').remove();
+        }
+
+        function sendFriendRequest() {
+            const friendName = document.getElementById('friend-search').value.trim();
+            if (!friendName) return;
+            
+            alert(`Friend request sent to ${friendName}`);
+            
+            // Add to expected requests
+            const expectedContainer = document.getElementById('expected-requests');
+            const newRequest = document.createElement('div');
+            newRequest.className = 'request-item';
+            newRequest.innerHTML = `
+                <div class="request-photo" style="background: linear-gradient(45deg, #ff6b6b, #4ecdc4);">${friendName.charAt(0).toUpperCase()}</div>
+                <div class="request-info">
+                    <div class="request-name">${friendName}</div>
+                    <div class="request-time">Pending</div>
+                </div>
+            `;
+            expectedContainer.appendChild(newRequest);
+            
+            // Clear input
+            document.getElementById('friend-search').value = '';
+        }
+
+        // Photo selector event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const photoOptions = document.querySelectorAll('.photo-option');
+            photoOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    photoOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    updateApplyButton();
+                });
+            });
+            
+            // Username input listener
+            document.getElementById('edit-username').addEventListener('input', updateApplyButton);
+        });
+
+        function openAbout() {
+            alert('About Find My - Version information and support');
+        }
+
+        // Simulate data loading with blur effect
+        function loadUserData() {
+            // Simulate API call delay
+            setTimeout(() => {
+                // Real data that would come from API
+                const userData = {
+                    name: "John Doe",
+                    email: "john.doe@example.com",
+                    friendsCount: 12
+                };
+
+                // Update content with real data
+                document.getElementById('username').textContent = userData.name;
+                document.getElementById('user-email').textContent = userData.email;
+                document.getElementById('friends-count').textContent = userData.friendsCount;
+                
+                // Update photo options with first letter
+                const firstLetter = userData.name.charAt(0).toUpperCase();
+                document.querySelectorAll('.photo-option').forEach(option => {
+                    option.textContent = firstLetter;
+                });
+
+                // Remove blur effect with smooth transition
+                document.querySelectorAll('.blur-loading').forEach(element => {
+                    element.classList.add('loaded');
+                });
+            }, 1500); // 1.5 second loading delay
+        }
+
+        // Initialize page
+        loadUserData();
+    </script>
+</body>
+</html>

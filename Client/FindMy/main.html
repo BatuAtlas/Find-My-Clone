@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My - App</title>
+    <style>
+        html, body {
+  margin: 0; padding: 0;
+  overflow: auto; /* kaydırmayı aktif tut */
+  scrollbar-width: none; /* Firefox scrollbar gizle */
+  -ms-overflow-style: none; /* IE scrollbar gizle */
+}
+
+::-webkit-scrollbar {
+  display: none; /* Chrome ve Safari scrollbar gizle */
+}
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100vh;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+
+
+        /* Content Area */
+        .content-area {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 80px;
+            overflow: hidden;
+            background: #f5f5f5;
+        }
+
+        .page-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+            background: transparent;
+        }
+
+        .page-frame.active {
+            display: block;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            z-index: 1000;
+            padding: 0 20px;
+        }
+
+        .nav-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            min-width: 60px;
+        }
+
+        .nav-btn:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        .nav-btn.active {
+            background: rgba(0, 122, 255, 0.1);
+            color: #007AFF;
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .nav-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+
+        .nav-btn.active .nav-label {
+            color: #007AFF;
+        }
+
+        /* Remove iframe scrollbars */
+        .page-frame::-webkit-scrollbar {
+            display: none;
+        }
+        
+        .page-frame {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .bottom-nav {
+                height: 75px;
+                padding: 0 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <iframe id="friends-frame" class="page-frame" src="friends.html"></iframe>
+        <iframe id="home-frame" class="page-frame active" src="home.html"></iframe>
+        <iframe id="profile-frame" class="page-frame" src="profile.html"></iframe>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <button class="nav-btn" onclick="setActiveNav('friends')" id="nav-friends">
+            <div class="nav-icon">👥</div>
+            <div class="nav-label">Friends</div>
+        </button>
+        <button class="nav-btn active" onclick="setActiveNav('home')" id="nav-home">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">Home</div>
+        </button>
+        <button class="nav-btn" onclick="setActiveNav('profile')" id="nav-profile">
+            <div class="nav-icon">👤</div>
+            <div class="nav-label">Profile</div>
+        </button>
+    </div>
+
+    <script>
+
+
+        // Navigation handler
+        function setActiveNav(section) {
+            // Remove active class from all nav buttons
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Hide all page frames
+            document.querySelectorAll('.page-frame').forEach(frame => {
+                frame.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            document.getElementById(`nav-${section}`).classList.add('active');
+            
+            // Show the corresponding page frame
+            document.getElementById(`${section}-frame`).classList.add('active');
+        }
+    </script>
+</body>
+</html>

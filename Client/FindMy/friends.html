@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find My - Friends</title>
+    <style>
+        html, body {
+            margin: 0; padding: 0;
+            overflow: auto; /* kaydırmayı aktif tut */
+            scrollbar-width: none; /* Firefox scrollbar gizle */
+            -ms-overflow-style: none; /* IE scrollbar gizle */
+        }
+
+        ::-webkit-scrollbar {
+            display: none; /* Chrome ve Safari scrollbar gizle */
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #74b9ff 0%, #0984e3 100%);
+            overflow-x: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        .friends-container {
+            padding: 20px;
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px 0;
+        }
+
+        .header-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-subtitle {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .search-bar {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            color: white;
+            font-size: 16px;
+            width: 100%;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+        }
+
+        .search-bar::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .search-bar:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .friends-list {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .friend-item {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .friend-item:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .friend-photo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: 600;
+            flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .friend-photo.online::after {
+            content: '';
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            width: 12px;
+            height: 12px;
+            background: #00b894;
+            border: 2px solid white;
+            border-radius: 50%;
+        }
+
+        .friend-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .friend-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .friend-status {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #00b894;
+        }
+
+        .status-indicator.away {
+            background: #fdcb6e;
+        }
+
+        .status-indicator.offline {
+            background: #636e72;
+        }
+
+        .friend-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+        }
+
+        .action-icon:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .add-friend-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: rgba(0, 122, 255, 0.9);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .add-friend-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.5);
+        }
+
+        .section-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 20px 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Blur Loading Styles */
+        .blur-loading {
+            filter: blur(8px);
+            opacity: 0.6;
+            transition: all 0.8s ease;
+            pointer-events: none;
+        }
+
+        .blur-loading.loaded {
+            filter: blur(0px);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .placeholder-text {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+            border-radius: 4px;
+            color: transparent;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        /* Remove scrollbars */
+        body::-webkit-scrollbar {
+            display: none;
+        }
+        
+        body {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 480px) {
+            .friends-container {
+                padding: 15px;
+            }
+            
+            .header-title {
+                font-size: 24px;
+            }
+            
+            .friend-item {
+                padding: 14px;
+                gap: 12px;
+            }
+            
+            .friend-photo {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            .friend-name {
+                font-size: 16px;
+            }
+            
+            .add-friend-btn {
+                bottom: 90px;
+                right: 15px;
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="friends-container">
+        <div class="header blur-loading">
+            <div class="header-title">Friends</div>
+            <div class="header-subtitle">Stay connected with your circle</div>
+        </div>
+
+        <input type="text" class="search-bar blur-loading" placeholder="Search friends..." id="search-input" oninput="filterFriends()">
+
+        <div class="friends-list blur-loading" id="friends-list">
+            <div class="section-header">Loading...</div>
+            
+            <div class="friend-item">
+                <div class="friend-photo">L</div>
+                <div class="friend-info">
+                    <div class="friend-name">Loading Friend</div>
+                    <div class="friend-status">
+                        <span class="status-indicator"></span>
+                        Loading status...
+                    </div>
+                </div>
+                <div class="friend-actions">
+                    <div class="action-icon">💬</div>
+                    <div class="action-icon">📍</div>
+                </div>
+            </div>
+
+            <div class="friend-item">
+                <div class="friend-photo">L</div>
+                <div class="friend-info">
+                    <div class="friend-name">Loading Friend</div>
+                    <div class="friend-status">
+                        <span class="status-indicator"></span>
+                        Loading status...
+                    </div>
+                </div>
+                <div class="friend-actions">
+                    <div class="action-icon">💬</div>
+                    <div class="action-icon">📍</div>
+                </div>
+            </div>
+
+            <div class="friend-item">
+                <div class="friend-photo">L</div>
+                <div class="friend-info">
+                    <div class="friend-name">Loading Friend</div>
+                    <div class="friend-status">
+                        <span class="status-indicator away"></span>
+                        Loading status...
+                    </div>
+                </div>
+                <div class="friend-actions">
+                    <div class="action-icon">💬</div>
+                    <div class="action-icon">📍</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-friend-btn" onclick="addFriend()" title="Add Friend">+</button>
+    </div>
+
+    <script>
+        // Sample friends data
+        const friendsData = [
+            { id: 'alice', name: 'Alice Johnson', status: 'online', lastSeen: 'Location shared • 2 min ago' },
+            { id: 'bob', name: 'Bob Smith', status: 'online', lastSeen: 'At work • 5 min ago' },
+            { id: 'carol', name: 'Carol Davis', status: 'away', lastSeen: 'Last seen 1 hour ago' },
+            { id: 'david', name: 'David Wilson', status: 'away', lastSeen: 'Last seen 3 hours ago' },
+            { id: 'emma', name: 'Emma Brown', status: 'offline', lastSeen: 'Last seen yesterday' }
+        ];
+
+        // Friend interaction handlers
+        function viewFriend(friendId) {
+            const friend = friendsData.find(f => f.id === friendId);
+            alert(`View ${friend.name}'s profile and location details`);
+        }
+
+        function messageFriend(friendId) {
+            const friend = friendsData.find(f => f.id === friendId);
+            alert(`Send message to ${friend.name}`);
+        }
+
+        function locateFriend(friendId) {
+            const friend = friendsData.find(f => f.id === friendId);
+            alert(`Show ${friend.name}'s location on map`);
+        }
+
+        function addFriend() {
+            alert('Add new friend - Send invitation or search by email/phone');
+        }
+
+        // Search functionality
+        function filterFriends() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const friendItems = document.querySelectorAll('.friend-item');
+            
+            friendItems.forEach(item => {
+                const friendName = item.querySelector('.friend-name').textContent.toLowerCase();
+                if (friendName.includes(searchTerm)) {
+                    item.style.display = 'flex';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Simulate data loading with blur effect
+        function loadFriendsData() {
+            setTimeout(() => {
+                // Real friends data
+                const realFriendsHTML = `
+                    <div class="section-header">Online Now</div>
+                    
+                    <div class="friend-item" onclick="viewFriend('alice')">
+                        <div class="friend-photo online">A</div>
+                        <div class="friend-info">
+                            <div class="friend-name">Alice Johnson</div>
+                            <div class="friend-status">
+                                <span class="status-indicator"></span>
+                                Location shared • 2 min ago
+                            </div>
+                        </div>
+                        <div class="friend-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); messageFriend('alice')" title="Message">💬</div>
+                            <div class="action-icon" onclick="event.stopPropagation(); locateFriend('alice')" title="Locate">📍</div>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" onclick="viewFriend('bob')">
+                        <div class="friend-photo online">B</div>
+                        <div class="friend-info">
+                            <div class="friend-name">Bob Smith</div>
+                            <div class="friend-status">
+                                <span class="status-indicator"></span>
+                                At work • 5 min ago
+                            </div>
+                        </div>
+                        <div class="friend-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); messageFriend('bob')" title="Message">💬</div>
+                            <div class="action-icon" onclick="event.stopPropagation(); locateFriend('bob')" title="Locate">📍</div>
+                        </div>
+                    </div>
+
+                    <div class="section-header">Recently Active</div>
+
+                    <div class="friend-item" onclick="viewFriend('carol')">
+                        <div class="friend-photo">C</div>
+                        <div class="friend-info">
+                            <div class="friend-name">Carol Davis</div>
+                            <div class="friend-status">
+                                <span class="status-indicator away"></span>
+                                Last seen 1 hour ago
+                            </div>
+                        </div>
+                        <div class="friend-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); messageFriend('carol')" title="Message">💬</div>
+                            <div class="action-icon" onclick="event.stopPropagation(); locateFriend('carol')" title="Locate">📍</div>
+                        </div>
+                    </div>
+
+                    <div class="friend-item" onclick="viewFriend('david')">
+                        <div class="friend-photo">D</div>
+                        <div class="friend-info">
+                            <div class="friend-name">David Wilson</div>
+                            <div class="friend-status">
+                                <span class="status-indicator away"></span>
+                                Last seen 3 hours ago
+                            </div>
+                        </div>
+                        <div class="friend-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); messageFriend('david')" title="Message">💬</div>
+                            <div class="action-icon" onclick="event.stopPropagation(); locateFriend('david')" title="Locate">📍</div>
+                        </div>
+                    </div>
+
+                    <div class="section-header">Offline</div>
+
+                    <div class="friend-item" onclick="viewFriend('emma')">
+                        <div class="friend-photo">E</div>
+                        <div class="friend-info">
+                            <div class="friend-name">Emma Brown</div>
+                            <div class="friend-status">
+                                <span class="status-indicator offline"></span>
+                                Last seen yesterday
+                            </div>
+                        </div>
+                        <div class="friend-actions">
+                            <div class="action-icon" onclick="event.stopPropagation(); messageFriend('emma')" title="Message">💬</div>
+                            <div class="action-icon" onclick="event.stopPropagation(); locateFriend('emma')" title="Locate">📍</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Update friends list with real data
+                document.getElementById('friends-list').innerHTML = realFriendsHTML;
+                
+                // Remove blur effect
+                document.querySelectorAll('.blur-loading').forEach(element => {
+                    element.classList.add('loaded');
+                });
+                
+                console.log('Friends data loaded');
+            }, 1800);
+        }
+
+        // Initialize page
+        loadFriendsData();
+    </script>
+</body>
+</html>
